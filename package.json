@@ -1,0 +1,20 @@
+{
+  "name": "sanelukone-worker",
+  "description": "Sanelukone worker",
+  "version": "0.0.1",
+  "contributors": [],
+  "dependencies": {
+    "async": "2.1.4",
+    "body-parser": "1.15.2",
+    "express": "4.14.0",
+    "express-cassandra": "1.6.2",
+    "morgan": "1.7.0",
+    "pidusage": "1.1.0",
+    "underscore": "1.8.3",
+    "uuid4": "1.0.0",
+    "websocket": "1.0.23",
+    "yargs": "6.5.0",
+    "sanelukone-messages": "file:../sanelukone-messages"
+  },
+  "readmeFilename": "README.md"
+}
