@@ -10,9 +10,11 @@
   var uuid = require('uuid4');
   var pidusage = require('pidusage');
   var fs = require('fs');
+  var stream = require('stream');
   
   var WebSockets = require(__dirname + '/websockets');
   var database = require(__dirname + '/database');
+  var wave = require(__dirname + '/wave');
   var speechToText = require(__dirname + '/speech-to-text');
   var messages = require('sanelukone-messages').getInstance();
   
@@ -37,6 +39,19 @@
   });
   
   app.use(morgan('combined'));
+  
+  app.get('/clips/:sessionId', function (req, res) {
+    database.listSessionClips(req.params.sessionId, function (err, clips) {
+      wave.mergeClips(clips, function (err, buffer) {
+        if (err) {
+          res.status(500).send(err); 
+        } else {
+          res.setHeader('content-type', 'audio/wav');
+          res.send(buffer);
+        }
+      });
+    });
+  });
   
   setInterval(function () {
     pidusage.stat(process.pid, function(err, stat) {
@@ -75,24 +90,19 @@
       if (err) {
         console.error(err);
       } else {
-        var buffers = [];
-        
-        for (var i = 0, l = clips.length; i < l; i++) {
-          var clip = clips[i];
-          buffers.push(clip.data.buffer);
-        }
-        
-        var buffer = Buffer.concat(buffers);
-        
-        console.log("recognizing ", buffer);
-        
-        speechToText.createRecognizeStream(buffer)
-          .on('error', (err) => {
-            console.error(err);
-          })
-          .on('data', (data) => {
-            console.log('Data received: %j', data);
-          });
+        wave.mergeClips(clips, function (err, buffer) {
+          if (err) {
+            res.status(500).send(err); 
+          } else {
+            speechToText.createRecognizeStream(buffer)
+              .on('error', (err) => {
+                console.error(err);
+              })
+              .on('data', (data) => {
+                console.log('Data received: %j', data);
+              });
+          }
+        });
       }
     });
   });

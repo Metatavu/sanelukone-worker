@@ -47,6 +47,30 @@
       });
     }
     
+    getClipData (sessionId, callback) {
+      this.listSessionClips(sessionId, function (err, clips) {
+        if (err) {
+          callback(err);
+        } else {
+          var buffers = [];
+          
+          for (var i = 0, l = clips.length; i < l; i++) {
+            var clip = clips[i];
+            buffers.push(clip.data.buffer);
+            
+            console.log(clip.data.buffer.byteLength);
+          }
+          
+          var buffers = Buffer.concat(buffers);
+          
+          console.log(buffers.byteLength);
+          
+          
+          callback(null, buffers);
+        }
+      });
+    }
+    
     _getConnection (callback) {
       MongoClient.connect(config.mongoURL, function(err, connection) {
         if (err) {

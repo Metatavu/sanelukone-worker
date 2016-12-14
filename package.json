@@ -15,6 +15,8 @@
     "sanelukone-messages": "file:../sanelukone-messages",
     "underscore": "1.8.3",
     "uuid4": "1.0.0",
+    "wav-decoder": "^1.1.0",
+    "wav-encoder": "^1.1.0",
     "websocket": "1.0.23",
     "yargs": "6.5.0"
   },
