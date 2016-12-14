@@ -15,7 +15,7 @@
       super();
     }
     
-    createRecognizeStream (buffer) {
+    createRecognizeStream () {
       const speech = Speech({
         projectId: config.projectId,
         keyFilename: config.keyFile
@@ -28,10 +28,6 @@
           languageCode: 'fi-FI'
         }
       });
-
-      var bufferStream = new stream.PassThrough();
-      bufferStream.end(buffer);
-      bufferStream.pipe(recognizeStream);
       
       return recognizeStream;
     }

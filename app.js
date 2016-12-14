@@ -90,19 +90,23 @@
       if (err) {
         console.error(err);
       } else {
-        wave.mergeClips(clips, function (err, buffer) {
-          if (err) {
-            res.status(500).send(err); 
-          } else {
-            speechToText.createRecognizeStream(buffer)
-              .on('error', (err) => {
-                console.error(err);
-              })
-              .on('data', (data) => {
-                console.log('Data received: %j', data);
-              });
-          }
-        });
+        var recognizeStream = speechToText.createRecognizeStream()
+          .on('error', (err) => {
+            console.error(err);
+          })
+          .on('data', (data) => {
+            console.log('Data received: %j', data);
+          });
+        
+        for (var i = 0, l = clips.length; i < l; i++) {
+          var clip = clips[i];
+          recognizeStream.write(clip.data.buffer);
+        }
+        
+        setTimeout(function () {
+          recognizeStream.end();
+        }, 4000);
+      
       }
     });
   });
