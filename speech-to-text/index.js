@@ -25,7 +25,7 @@
         config: {
           encoding: 'LINEAR16',
           sampleRate: 16000,
-          languageCode: 'fi_FI'
+          languageCode: 'fi-FI'
         }
       });
 
