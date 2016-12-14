@@ -4,17 +4,19 @@
   "version": "0.0.1",
   "contributors": [],
   "dependencies": {
+    "@google-cloud/speech": "0.5.0",
     "async": "2.1.4",
     "body-parser": "1.15.2",
+    "detect-file-type": "^0.1.0",
     "express": "4.14.0",
-    "express-cassandra": "1.6.2",
+    "mongodb": "2.2.16",
     "morgan": "1.7.0",
     "pidusage": "1.1.0",
+    "sanelukone-messages": "file:../sanelukone-messages",
     "underscore": "1.8.3",
     "uuid4": "1.0.0",
     "websocket": "1.0.23",
-    "yargs": "6.5.0",
-    "sanelukone-messages": "file:../sanelukone-messages"
+    "yargs": "6.5.0"
   },
   "readmeFilename": "README.md"
 }

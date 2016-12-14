@@ -7,11 +7,11 @@
   var WebSocketServer = require('websocket').server;
   
   class Client extends EventEmitter {
-    constructor (connection, sessionId) {
+    constructor (connection) {
       super();
     
       this.connection = connection;
-      this.sessionId = sessionId;
+      this.sessionId = null;
     
       connection.on('message', function (message) {
         this._onConnectionMessage(connection, message);
@@ -20,6 +20,14 @@
       connection.on('close', function (reasonCode, description) {
         this._onConnectionClose(connection, reasonCode, description);
       }.bind(this));
+    }
+    
+    getSessionId () {
+      return this.sessionId;
+    }
+    
+    setSessionId (sessionId) {
+      this.sessionId = sessionId;
     }
     
     sendMessage (type, data) {
@@ -81,23 +89,19 @@
     }
     
     _onServerRequest (request) {
-      var urlParts = request.resourceURL.path.split('/');
-      var sessionId = _.last(urlParts);
-      // TODO: is it really acceptable?
       var connection = request.accept();
-      var client = new Client(connection, sessionId);
+      var client = new Client(connection);
 
       client.on("message", function (message) {
         this.emit(message.type, _.extend(message.data, {
-          client: client,
-          sessionId: message.sessionId
+          client: client
         }));
       }.bind(this));
 
       client.on("clip", function (data) {
         this.emit('clip', {
           client: client,
-          data: data
+          data: data.data
         });
       }.bind(this));
 

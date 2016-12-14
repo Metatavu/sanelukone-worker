@@ -9,10 +9,13 @@
   var bodyParser = require('body-parser');
   var uuid = require('uuid4');
   var pidusage = require('pidusage');
+  var fs = require('fs');
   
   var WebSockets = require(__dirname + '/websockets');
+  var database = require(__dirname + '/database');
+  var speechToText = require(__dirname + '/speech-to-text');
   var messages = require('sanelukone-messages').getInstance();
-
+  
   var workerId = uuid();
   var argv = require('yargs')
     .usage('Start sanelukone worker \nUsage: $0')
@@ -49,14 +52,65 @@
   
   var webSockets = new WebSockets(httpServer);
 
-  webSockets.on("system:hello", function (data) {
+  webSockets.on("system:hello", function (event) {
     console.log("Received helo");
   });
   
-  webSockets.on("clip", function (data) {
-    var buffer = data.data;
-    var client = data.client;
-    client.sendMessage("clip:processed", { });
+  webSockets.on("transmit:start", function (event) {
+    var client = event.client;
+    var sessionId = event.sessionId;
+    client.setSessionId(sessionId);
+    console.log(util.format("Started receiving data for session %s", sessionId));
+  });
+  
+  webSockets.on("transmit:end", function (event) {
+    var client = event.client;
+    var sessionId = event.sessionId;
+    client.setSessionId(null);
+    console.log(util.format("Stopped receiving data for session %s", sessionId));
+    
+    console.log(util.format("Start processing session %s", sessionId));
+    
+    database.listSessionClips(sessionId, function (err, clips) {
+      if (err) {
+        console.error(err);
+      } else {
+        var buffers = [];
+        
+        for (var i = 0, l = clips.length; i < l; i++) {
+          var clip = clips[i];
+          buffers.push(clip.data.buffer);
+        }
+        
+        var buffer = Buffer.concat(buffers);
+        
+        console.log("recognizing ", buffer);
+        
+        speechToText.createRecognizeStream(buffer)
+          .on('error', (err) => {
+            console.error(err);
+          })
+          .on('data', (data) => {
+            console.log('Data received: %j', data);
+          });
+      }
+    });
+  });
+  
+  webSockets.on("clip", function (event) {
+    var data = event.data;
+    var client = event.client;
+    var time = new Date().getTime();
+    var sessionId = client.getSessionId();
+    database.insertClip(sessionId, time, data, function (err) {
+      if (err) {
+        console.err(err);
+      } else {
+        client.sendMessage("transmit:clip-transmitted", { 
+          sessionId: sessionId
+        });
+      }
+    });
   });
   
   console.log(util.format("Worker started at %s:%d", host, port));
