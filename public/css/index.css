@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto|Syncopate:700');
+
+body {
+  font-family: 'Roboto', sans-serif;
+  overflow-x: hidden;
+}
+
+body h1, body h2, body h3, body h4, body h5, body h6 {
+ font-family: 'Syncopate', sans-serif;
+}
+
+.no-gutters {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.banner {
+  height: 400px;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-image: url('/gfx/banner-2.jpg');
+}
+
+.banner h1 {
+  color: #fff;
+  padding-top: 40px;
+  padding-left: 60px; 
+  font-size: 36px;
+  letter-spacing: 2.8px;
+}
+
+body h3 {
+  color: #f03c00;
+  padding-top: 20px;
+}
+
+.session {
+  border-top: 1px solid #666;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+body h4 {
+  font-size: 12px;
+  color: #444;
+}
+
+.session .fa {
+  font-size: 16px;
+  border: 1px solid #999;
+  padding: 5px;
+  border-radius: 5px;
+  margin-right: 5px;
+  cursor: pointer;  
+}
+
+.session .fa:hover {
+  background: #eee;
+}
+
+.session .text {
+  color: #555;
+  padding: 10px;
+  width: 100%;
+  border: 1px dotted #666;
+  margin-top: 20px;
+}
+
+.buttons-container {
+  margin-top: 20px;
+}
+
+button[type="button"] {
+  border-radius: 0px;
+  border: 1px outset #666;
+}
+
+.ui-widget {
+  font-family: 'Roboto', sans-serif !important;
+  font-size: 90% !important;
+}
+
+.ui-dialog-titlebar-close:after {
+  content: 'x';
+  line-height: 12px;
+  display: block;
+  text-align: center;
+  color: #666;
+  width: 15px;
+}

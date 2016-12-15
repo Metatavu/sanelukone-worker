@@ -1,0 +1,19 @@
+- var title = moment(started).locale('fi').format('LLLL');
+.row
+  .session.col-xs-24(data-session-id=id)
+    .row
+      .col-xs-12.no-gutters
+        h4.title
+          =title
+      .col-xs-12.text-xs-right
+        .clip-container
+          audio(controls)
+            source(src='/sessions/' + id + '/clipdatas')
+    .row
+      .col-xs-24.no-gutters
+        .text-container(style="display:none")
+          .text
+    .row
+      .col-xs-12.no-gutters.buttons-container
+        a.fa.fa-trash-o.trash-session
+        a.fa.fa-pencil-square-o.edit-session(style="display:none")

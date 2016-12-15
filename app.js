@@ -39,8 +39,11 @@
   });
   
   app.use(morgan('combined'));
-  
-  app.get('/clips/:sessionId', function (req, res) {
+  app.use(express.static(__dirname + '/public'));
+  app.set('views', __dirname + '/views');
+  app.set('view engine', 'pug');
+
+  app.get('/sessions/:sessionId/clipdatas', function (req, res) {
     database.listSessionClips(req.params.sessionId, function (err, clips) {
       wave.mergeClips(clips, function (err, buffer) {
         if (err) {
@@ -51,6 +54,50 @@
         }
       });
     });
+  });
+
+  app.get('/sessions/:sessionId/texts', function (req, res) {
+    database.listSessionTexts(req.params.sessionId, function (err, texts) {
+      if (err) {
+        res.status(500).send(err); 
+      } else {
+        res.setHeader('content-type', 'application/json');
+        res.send(texts.map(function (text) {
+          return text.text;
+        }));
+      }
+    });
+  });
+  
+  app.get('/sessions/', function (req, res) {
+    database.listSessions(function (err, sessions) {
+      if (err) {
+        res.status(500).send(err); 
+      } else {
+        res.setHeader('content-type', 'application/json');
+        res.send(JSON.stringify(sessions.map((session) => {
+          return {
+            "id": session.sessionId,
+            "started": session.started,
+            "state": session.state
+          }
+        })));
+      }
+    });
+  });
+  
+  app.delete('/sessions/:sessionId', function (req, res) {
+    database.deleteSession(req.params.sessionId, function (err) {
+      if (err) {
+        res.status(500).send(err); 
+      } else {
+        res.status(204).send();
+      }
+    });
+  });
+  
+  app.get('/', function (req, res) {
+    res.render('pages/index', { });
   });
   
   setInterval(function () {
@@ -74,8 +121,18 @@
   webSockets.on("transmit:start", function (event) {
     var client = event.client;
     var sessionId = event.sessionId;
+    var time = new Date().getTime();
+    
     client.setSessionId(sessionId);
-    console.log(util.format("Started receiving data for session %s", sessionId));
+    
+    database.insertSession(sessionId, time, "RECORDING", function (err) {
+      if (err) {
+        console.err(err);
+      } else {
+        console.log(util.format("Started session %s", sessionId));
+      }
+    });
+    
   });
   
   webSockets.on("transmit:end", function (event) {
@@ -84,7 +141,13 @@
     client.setSessionId(null);
     console.log(util.format("Stopped receiving data for session %s", sessionId));
     
-    console.log(util.format("Start processing session %s", sessionId));
+    database.updateSessionState(sessionId, "PROCESSING", function (err) {
+      if (err) {
+        console.err(err);
+      } else {
+        console.log(util.format("Start processing session %s", sessionId));
+      }
+    });
     
     database.listSessionClips(sessionId, function (err, clips) {
       if (err) {
@@ -95,7 +158,21 @@
             console.error(err);
           })
           .on('data', (data) => {
-            console.log('Data received: %j', data);
+            if (data.results) {
+              database.insertText(sessionId, data.results, function (err) {
+                if (err) {
+                  console.error(err);
+                } else {
+                  database.updateSessionState(sessionId, "DONE", function (stateErr) {
+                    if (stateErr) {
+                      console.error(stateErr);
+                    } else {
+                      console.log(util.format("Done processing session %s", sessionId));
+                    }
+                  });
+                }
+              });
+            }
           });
         
         for (var i = 0, l = clips.length; i < l; i++) {

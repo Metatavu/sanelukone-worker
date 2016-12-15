@@ -12,6 +12,88 @@
       super();
     }
     
+    insertSession (sessionId, started, state, callback) {
+      this._getConnection(function (err, connection) {
+        if (err) {
+          callback(err);
+        } else {
+          connection.collection('sessions')
+            .insert({
+              sessionId: sessionId,
+              started: started,
+              state: state
+            });
+          
+          callback(null);
+        }
+      });
+    }
+    
+    deleteSession (sessionId, callback) {
+      this._getConnection(function (err, connection) {
+        if (err) {
+          callback(err);
+        } else {
+          connection.collection('sessions')
+            .remove({ "sessionId" : sessionId });
+          
+          connection.collection('clips')
+            .remove({ "sessionId" : sessionId });
+          
+          connection.collection('texts')
+            .remove({ "sessionId" : sessionId });
+          
+          callback(null);
+        }
+      });
+    }
+    
+    updateSessionState (sessionId, state, callback) {
+      this._getConnection(function (err, connection) {
+        if (err) {
+          callback(err);
+        } else {
+          connection.collection('sessions')
+            .update(
+              { "sessionId" : sessionId }, 
+              { $set: {state: state} 
+            });
+          
+          callback(null);
+        }
+      });
+    }
+    
+    insertText (sessionId, text, callback) {
+      this._getConnection(function (err, connection) {
+        if (err) {
+          callback(err);
+        } else {
+          connection.collection('texts')
+            .insert({
+              sessionId: sessionId,
+              text: text
+            });
+          
+          callback(null);
+        }
+      });
+    }
+
+    listSessionTexts (sessionId, callback) {
+      this._getConnection(function (err, connection) {
+        if (err) {
+          callback(err);
+        } else {
+          connection.collection('texts')
+            .find({"sessionId": sessionId})
+            .toArray(function(queryErr, results) {
+              callback(queryErr, results);
+            });
+        }
+      });
+    }
+    
     insertClip (sessionId, time, data, callback) {
       this._getConnection(function (err, connection) {
         if (err) {
@@ -25,6 +107,24 @@
             });
           
           callback(null);
+        }
+      });
+    }
+    
+    listSessions (callback) {
+      this._getConnection(function (err, connection) {
+        if (err) {
+          callback(err);
+        } else {
+          var options = {
+            "sort": "time"
+          };
+          
+          connection.collection('sessions')
+            .find({}, options)
+            .toArray(function(queryErr, results) {
+              callback(queryErr, results);
+            });
         }
       });
     }
@@ -57,16 +157,9 @@
           for (var i = 0, l = clips.length; i < l; i++) {
             var clip = clips[i];
             buffers.push(clip.data.buffer);
-            
-            console.log(clip.data.buffer.byteLength);
           }
           
-          var buffers = Buffer.concat(buffers);
-          
-          console.log(buffers.byteLength);
-          
-          
-          callback(null, buffers);
+          callback(null, Buffer.concat(buffers));
         }
       });
     }
