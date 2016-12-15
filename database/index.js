@@ -29,6 +29,20 @@
       });
     }
     
+    findSession (sessionId, callback) {
+      this._getConnection(function (err, connection) {
+        if (err) {
+          callback(err);
+        } else {
+          connection.collection('sessions')
+            .find({"sessionId": sessionId})
+            .toArray(function(queryErr, results) {
+              callback(queryErr, results && results.length ? results[0] : null);
+            });
+        }
+      });
+    }
+    
     deleteSession (sessionId, callback) {
       this._getConnection(function (err, connection) {
         if (err) {

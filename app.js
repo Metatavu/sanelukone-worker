@@ -125,11 +125,19 @@
     
     client.setSessionId(sessionId);
     
-    database.insertSession(sessionId, time, "RECORDING", function (err) {
-      if (err) {
-        console.err(err);
+    database.findSession(sessionId, function (findErr, session) {
+      if (findErr) {
+        console.err(findErr);
       } else {
-        console.log(util.format("Started session %s", sessionId));
+        if (session == null) {
+          database.insertSession(sessionId, time, "RECORDING", function (err) {
+            if (err) {
+              console.err(err);
+            } else {
+              console.log(util.format("Started session %s", sessionId));
+            }
+          });
+        }
       }
     });
     
