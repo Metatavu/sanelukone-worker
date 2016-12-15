@@ -11,6 +11,7 @@
   var pidusage = require('pidusage');
   var fs = require('fs');
   var stream = require('stream');
+  var toBuffer = require('typedarray-to-buffer');
   
   var WebSockets = require(__dirname + '/websockets');
   var database = require(__dirname + '/database');
@@ -45,7 +46,7 @@
 
   app.get('/sessions/:sessionId/clipdatas', function (req, res) {
     database.listSessionClips(req.params.sessionId, function (err, clips) {
-      wave.mergeClips(clips, function (err, buffer) {
+      wave.mergeClipsWave(clips, function (err, buffer) {
         if (err) {
           res.status(500).send(err); 
         } else {
@@ -124,6 +125,7 @@
     var time = new Date().getTime();
     
     client.setSessionId(sessionId);
+    client.setSessionStatus("RECORDING");
     
     database.findSession(sessionId, function (findErr, session) {
       if (findErr) {
@@ -146,7 +148,13 @@
   webSockets.on("transmit:end", function (event) {
     var client = event.client;
     var sessionId = event.sessionId;
-    client.setSessionId(null);
+    if (client.getSessionStatus() != 'RECORDING') {
+      console.error("Session was not recording");
+      return;
+    }
+
+    client.setSessionStatus("PROCESSING");
+    
     console.log(util.format("Stopped receiving data for session %s", sessionId));
     
     database.updateSessionState(sessionId, "PROCESSING", function (err) {
@@ -175,6 +183,8 @@
                     if (stateErr) {
                       console.error(stateErr);
                     } else {
+                      client.setSessionStatus("DONE");
+                      client.setSessionId(null);
                       console.log(util.format("Done processing session %s", sessionId));
                     }
                   });
@@ -187,11 +197,10 @@
           var clip = clips[i];
           recognizeStream.write(clip.data.buffer);
         }
-        
+
         setTimeout(function () {
           recognizeStream.end();
-        }, 4000);
-      
+        }, 5000);
       }
     });
   });

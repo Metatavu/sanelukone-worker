@@ -35,7 +35,7 @@
         });
     }
     
-    mergeClips (clips, callback) {
+    mergeClipsWave (clips, callback) {
       var decodePromises = [];
       
       for (var i = 0, l = clips.length; i < l; i++) {
@@ -62,6 +62,28 @@
             .catch((error) => {
               callback(error);
             });
+       })
+       .catch((error) => {
+         callback(error);
+       });
+    }
+    
+    mergeClipsRaw (clips, callback) {
+      var decodePromises = [];
+      
+      for (var i = 0, l = clips.length; i < l; i++) {
+        if (clips[i].data.buffer.byteLength) {
+          decodePromises.push(WavDecoder.decode(clips[i].data.buffer));  
+        }
+      }
+      
+      Promise.all(decodePromises)
+        .then((audioDatas) => {
+          var channelDatas = this.mergeChannelDatas(audioDatas.map((audioData) => {
+            return audioData.channelData[0];
+          }));
+        
+          callback(null, channelDatas);
        })
        .catch((error) => {
          callback(error);

@@ -12,6 +12,7 @@
     
       this.connection = connection;
       this.sessionId = null;
+      this.sessionStatus = null;
     
       connection.on('message', function (message) {
         this._onConnectionMessage(connection, message);
@@ -28,6 +29,14 @@
     
     setSessionId (sessionId) {
       this.sessionId = sessionId;
+    }
+    
+    getSessionStatus () {
+      return this.sessionStatus;
+    }
+    
+    setSessionStatus (sessionStatus) {
+      this.sessionStatus = sessionStatus;
     }
     
     sendMessage (type, data) {
