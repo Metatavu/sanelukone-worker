@@ -9,7 +9,7 @@
 
   const WavDecoder = require("wav-decoder");
   const WavEncoder = require("wav-encoder");
-  
+    
   class Wave extends EventEmitter {
     constructor () {
       super();
@@ -20,21 +20,22 @@
       
       
       for (var i = 0, l = clips.length; i < l; i++) {
-        console.log("clip bytelength", clips[i].data.buffer.byteLength);
-        console.log("clip lenghth", clips[i].data.buffer.length);
-        // if (clips[i].data.buffer.byteLength || clips[i].data.buffer.length) {
+        if (clips[i].data.buffer.byteLength || clips[i].data.buffer.length) {
           decodePromises.push(WavDecoder.decode(clips[i].data.buffer));  
-        // }
+        }
       }
+
+      console.log(util.format("Decoding %d clips", decodePromises.length));
       
       Promise.all(decodePromises)
         .then((audioDatas) => {
+          console.log(util.format("Decoded clips %d", audioDatas.length));
           callback(null, audioDatas.map((audioData) => {
             return audioData.channelData[0];
           }));
         })
         .catch((error) => {
-          callback(error);
+          callback(util.format("Wave decoding failed on %s", error));
         });
     }
     
