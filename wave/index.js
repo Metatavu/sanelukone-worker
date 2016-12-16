@@ -19,7 +19,7 @@
       var decodePromises = [];
       
       for (var i = 0, l = clips.length; i < l; i++) {
-        if (clips[i].data.buffer.byteLength) {
+        if (clips[i].data.buffer.byteLength || clips[i].data.buffer.length) {
           decodePromises.push(WavDecoder.decode(clips[i].data.buffer));  
         }
       }
