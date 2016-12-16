@@ -174,6 +174,8 @@
                 console.error(util.format("Error %s occurred while recognizing session %s", recognizeErr, sessionId));
               })
               .on('data', (data) => {
+                console.log("Incoming data from Google");
+                
                 if (data.results) {
                   database.insertText(sessionId, data.results, function (insertErr) {
                     if (insertErr) {
