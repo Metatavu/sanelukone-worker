@@ -39,7 +39,7 @@
     console.log('Server is listening on port ' + port);
   });
   
-  app.use(morgan('combined'));
+  // app.use(morgan('combined'));
   app.use(express.static(__dirname + '/public'));
   app.set('views', __dirname + '/views');
   app.set('view engine', 'pug');
