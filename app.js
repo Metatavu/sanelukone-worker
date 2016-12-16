@@ -157,50 +157,55 @@
     
     console.log(util.format("Stopped receiving data for session %s", sessionId));
     
-    database.updateSessionState(sessionId, "PROCESSING", function (err) {
-      if (err) {
-        console.err(err);
+    database.updateSessionState(sessionId, "PROCESSING", function (updErr) {
+      if (updErr) {
+        console.err(updErr);
       } else {
-        console.log(util.format("Start processing session %s", sessionId));
-      }
-    });
-    
-    database.listSessionClips(sessionId, function (err, clips) {
-      if (err) {
-        console.error(err);
-      } else {
-        var recognizeStream = speechToText.createRecognizeStream()
-          .on('error', (err) => {
-            console.error(err);
-          })
-          .on('data', (data) => {
-            if (data.results) {
-              database.insertText(sessionId, data.results, function (err) {
-                if (err) {
-                  console.error(err);
-                } else {
-                  database.updateSessionState(sessionId, "DONE", function (stateErr) {
-                    if (stateErr) {
-                      console.error(stateErr);
+        console.log(util.format("Processing clips for for session %s", sessionId));
+        
+        database.listSessionClips(sessionId, function (listErr, clips) {
+          if (listErr) {
+            console.error(listErr);
+          } else {
+            console.log(util.format("Sending %d clips for recognition in session %s", clips.length, sessionId));
+            
+            var recognizeStream = speechToText.createRecognizeStream()
+              .on('error', (recognizeErr) => {
+                console.error(util.format("Error %s occurred while recognizing session %s", recognizeErr, sessionId));
+              })
+              .on('data', (data) => {
+                if (data.results) {
+                  database.insertText(sessionId, data.results, function (err) {
+                    if (err) {
+                      console.error(err);
                     } else {
-                      client.setSessionStatus("DONE");
-                      client.setSessionId(null);
-                      console.log(util.format("Done processing session %s", sessionId));
+                      database.updateSessionState(sessionId, "DONE", function (stateErr) {
+                        if (stateErr) {
+                          console.error(stateErr);
+                        } else {
+                          client.setSessionStatus("DONE");
+                          client.setSessionId(null);
+                          console.log(util.format("Done processing session %s", sessionId));
+                        }
+                      });
                     }
                   });
+                } else {
+                  console.log("Unhandeled recognize result", data);
                 }
               });
+            
+            for (var i = 0, l = clips.length; i < l; i++) {
+              var clip = clips[i];
+              recognizeStream.write(clip.data.buffer);
             }
-          });
-        
-        for (var i = 0, l = clips.length; i < l; i++) {
-          var clip = clips[i];
-          recognizeStream.write(clip.data.buffer);
-        }
 
-        setTimeout(function () {
-          recognizeStream.end();
-        }, 5000);
+            setTimeout(function () {
+              console.log("Recognize cool down 5s");
+              recognizeStream.end();
+            }, 5000);
+          }
+        });
       }
     });
   });
