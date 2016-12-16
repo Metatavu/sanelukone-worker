@@ -201,8 +201,12 @@
               if (err) {
                 console.err(util.format("Wave to RAW conversion failed on %s", rawErr));
               } else {
+                console.log(util.format("Sending %d clips to recognizition", rawClips.length));
+                
                 for (var i = 0, l = rawClips.length; i < l; i++) {
                   var rawClip = rawClips[i];
+                  console.log(util.format("Clip %d type", i, typeof rawClip));
+                  
                   var rawBuffer = toBuffer(rawClip);
                   console.log("Sending %d / %d raw bytes to recognize", rawClip.length, rawBuffer.length);
                   recognizeStream.write(new Buffer(rawBuffer, "binary"));
