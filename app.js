@@ -175,9 +175,9 @@
               })
               .on('data', (data) => {
                 if (data.results) {
-                  database.insertText(sessionId, data.results, function (err) {
-                    if (err) {
-                      console.error(err);
+                  database.insertText(sessionId, data.results, function (insertErr) {
+                    if (insertErr) {
+                      console.error(insertErr);
                     } else {
                       database.updateSessionState(sessionId, "DONE", function (stateErr) {
                         if (stateErr) {
@@ -194,6 +194,8 @@
                   console.log("Unhandeled recognize result", data);
                 }
               });
+            
+            console.log("Converting clips to RAW clips");
             
             wave.rawClips(clips, function (rawErr, rawClips) {
               if (err) {
