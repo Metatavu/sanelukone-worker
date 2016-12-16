@@ -1,7 +1,7 @@
 {
   "name": "sanelukone-worker",
   "description": "Sanelukone worker",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "contributors": [],
   "dependencies": {
     "@google-cloud/speech": "0.5.0",
