@@ -18,10 +18,13 @@
     rawClips (clips, callback) {
       var decodePromises = [];
       
+      
       for (var i = 0, l = clips.length; i < l; i++) {
-        if (clips[i].data.buffer.byteLength || clips[i].data.buffer.length) {
+        console.log("clip bytelength", clips[i].data.buffer.byteLength);
+        console.log("clip lenghth", clips[i].data.buffer.length);
+        // if (clips[i].data.buffer.byteLength || clips[i].data.buffer.length) {
           decodePromises.push(WavDecoder.decode(clips[i].data.buffer));  
-        }
+        // }
       }
       
       Promise.all(decodePromises)
