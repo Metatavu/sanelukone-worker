@@ -196,7 +196,22 @@
                   console.log("Unhandeled recognize result", data);
                 }
               });
+
+            console.log(util.format("Sending %d wav clips to recognizition", rawClips.length));
             
+            for (var i = 0, l = clips.length; i < l; i++) {
+              var clip = clips[i];
+              recognizeStream.write(clip.data.buffer);
+            }
+
+            console.log("Recognize cool down 5s");
+
+            setTimeout(function () {
+              recognizeStream.end();
+              console.log("Stream end");
+            }, 5000);
+            
+            /**
             console.log("Converting clips to RAW clips");
             
             wave.rawClips(clips, function (rawErr, rawClips) {
@@ -211,7 +226,7 @@
                   
                   var rawBuffer = toBuffer(rawClip);
                   console.log("Sending %d / %d raw bytes to recognize", rawClip.length, rawBuffer.length);
-                  recognizeStream.write(rawBuffer);
+                  recognizeStream.write(new Buffer(rawBuffer, "binary"));
                 }
   
                 console.log("Recognize cool down 5s");
@@ -221,7 +236,7 @@
                   console.log("Stream end");
                 }, 5000);
               }
-            });
+            }); **/
           }
         });
       }

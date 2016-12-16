@@ -21,10 +21,6 @@
         keyFilename: config.keyFile
       });
       
-      console.log("Creating stream with config:");
-      console.log(config);
-      console.log("created", speech);
-      
       const recognizeStream = speech.createRecognizeStream({
         config: {
           encoding: 'LINEAR16',
