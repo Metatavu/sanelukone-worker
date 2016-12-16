@@ -5,6 +5,13 @@
       .col-xs-12.no-gutters
         h4.title
           =title
+        p.state
+          if state == 'RECORDING'
+            span(style="color:red")
+              |Nauhoitetaan...
+          if state == 'PROCESSING'
+            span(style="color:organge")
+              |Tunnistetaan...
       .col-xs-12.text-xs-right
         .clip-container
           audio(controls)
