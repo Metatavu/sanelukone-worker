@@ -198,7 +198,7 @@
             console.log("Converting clips to RAW clips");
             
             wave.rawClips(clips, function (rawErr, rawClips) {
-              if (err) {
+              if (rawErr) {
                 console.err(util.format("Wave to RAW conversion failed on %s", rawErr));
               } else {
                 console.log(util.format("Sending %d clips to recognizition", rawClips.length));
