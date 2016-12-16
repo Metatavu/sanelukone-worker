@@ -195,15 +195,25 @@
                 }
               });
             
-            for (var i = 0, l = clips.length; i < l; i++) {
-              var clip = clips[i];
-              recognizeStream.write(clip.data.buffer);
-            }
-
-            setTimeout(function () {
-              console.log("Recognize cool down 5s");
-              recognizeStream.end();
-            }, 5000);
+            wave.rawClips(clips, function (rawErr, rawClips) {
+              if (err) {
+                console.err(util.format("Wave to RAW conversion failed on %s", rawErr));
+              } else {
+                for (var i = 0, l = rawClips.length; i < l; i++) {
+                  var rawClip = rawClips[i];
+                  var rawBuffer = toBuffer(rawClip);
+                  console.log("Sending %d / %d raw bytes to recognize", rawClip.length, rawBuffer.length);
+                  recognizeStream.write(new Buffer(rawBuffer, "binary"));
+                }
+  
+                console.log("Recognize cool down 5s");
+  
+                setTimeout(function () {
+                  recognizeStream.end();
+                  console.log("Stream end");
+                }, 5000);
+              }
+            });
           }
         });
       }
