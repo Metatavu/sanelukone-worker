@@ -197,7 +197,7 @@
                 }
               });
 
-            console.log(util.format("Sending %d wav clips to recognizition", rawClips.length));
+            console.log(util.format("Sending %d wav clips to recognizition", clips.length));
             
             for (var i = 0, l = clips.length; i < l; i++) {
               var clip = clips[i];
