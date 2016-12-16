@@ -131,7 +131,7 @@
           callback(err);
         } else {
           var options = {
-            "sort": "time"
+            "sort": [["time",'desc']]
           };
           
           connection.collection('sessions')
