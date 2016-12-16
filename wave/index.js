@@ -29,10 +29,15 @@
       
       Promise.all(decodePromises)
         .then((audioDatas) => {
-          console.log(util.format("Decoded clips %d", audioDatas.length));
-          callback(null, audioDatas.map((audioData) => {
+          console.log(util.format("Decoded %d clips", audioDatas.length));
+          
+          var result = audioDatas.map((audioData) => {
             return audioData.channelData[0];
-          }));
+          });
+
+          console.log(util.format("Returning %d channel data", result.length));
+
+          callback(null, result);
         })
         .catch((error) => {
           callback(util.format("Wave decoding failed on %s", error));
