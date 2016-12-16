@@ -209,7 +209,7 @@
                   
                   var rawBuffer = toBuffer(rawClip);
                   console.log("Sending %d / %d raw bytes to recognize", rawClip.length, rawBuffer.length);
-                  recognizeStream.write(new Buffer(rawBuffer, "binary"));
+                  recognizeStream.write(rawBuffer);
                 }
   
                 console.log("Recognize cool down 5s");
